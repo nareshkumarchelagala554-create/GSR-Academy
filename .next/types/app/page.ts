@@ -1,4 +1,4 @@
-// File: C:\Users\User\Downloads\aeee-exam-portal\src\app\page.tsx
+// File: C:\Users\User\Desktop\GSR Academy Exam Portal\src\app\page.tsx
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
