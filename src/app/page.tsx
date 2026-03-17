@@ -232,7 +232,7 @@ export default function ExamPage() {
 
           {SECTIONS.map((section) => (
 
-            <div className="relative group">
+            <div key={section.startId} className="relative group">
 
               <button
                 onClick={() => handleNavigate(section.startId)}
