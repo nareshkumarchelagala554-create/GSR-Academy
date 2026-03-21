@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaBookmark } from "react-icons/fa6";
+import { BiSolidDownArrowAlt } from "react-icons/bi";
+import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
@@ -18,6 +21,25 @@ import {
 import { SECTIONS, MOCK_QUESTIONS, INITIAL_TIME } from '@/src/lib/constants';
 import { QuestionStatus, ExamState, Question, Section } from '@/src/lib/types';
 import { useRouter } from 'next/navigation';
+
+const STATUS_STYLES: Record<string, string> = {
+  answered:
+    'bg-[#2e7d32] text-white rounded-t-[12px] shadow-[inset_0_0px_10px_rgba(0,0,0,0.6)]',
+
+  'not-answered':
+    'bg-[#c62828] text-white rounded-[18px]  shadow-[inset_0_0px_10px_rgba(0,0,0,0.6)]',
+
+  marked:
+    'bg-[#ef6c00] text-white rounded-b-2xl shadow-[inset_0_0px_10px_rgba(0,0,0,0.7)]',
+
+  'answered-marked':
+    `bg-[#0097a7] text-white rounded-[18px]  relative
+     after:content-[''] after:absolute after:bottom-0 after:right-0 
+     after:w-2 after:h-2 after:bg-black after:rounded-sm shadow-[inset_0_0px_10px_rgba(0,0,0,0.6)]`,
+
+  'not-visited':
+    'bg-[#e0e0e0] text-gray-700 rounded-md border border-gray-300',
+};
 
 export default function ExamPage() {
   console.log("ExamPage rendered");
@@ -40,6 +62,8 @@ export default function ExamPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showSectionSummary, setShowSectionSummary] = useState<Section | null>(null);
   const [showFinalSummary, setShowFinalSummary] = useState(false);
+  const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>('md');
+  const [hoveredQ, setHoveredQ] = useState<number | null>(null);
 
   // Timer logic
   useEffect(() => {
@@ -125,16 +149,29 @@ export default function ExamPage() {
     }
   };
 
-  const getStatusColor = (status: QuestionStatus) => {
-    switch (status) {
-      case 'answered': return 'bg-green-800 text-white border-green-500';
-      case 'not-answered': return 'bg-red-800 text-white border-red-500';
-      case 'marked': return 'bg-orange-500 text-white border-orange-500';
-      case 'answered-marked': return 'bg-blue-500 text-white border-blue-500 relative after:content-[""] after:absolute after:bottom-0 after:right-0 after:w-2 after:h-2 after:bg-black after:rounded-sm';
-      case 'not-visited': return 'bg-gray-200 text-slate-600 border-slate-300';
-      default: return 'bg-gray-300 text-slate-600 border-slate-300';
-    }
-  };
+  // const getStatusStyle = (status: QuestionStatus) => {
+  //   switch (status) {
+  //     case 'answered':
+  //       return 'bg-[#2e7d32] text-white rounded-t-2xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.9)]'; // GREEN (normal rounded)
+
+  //     case 'not-answered':
+  //       return 'bg-[#c62828] text-white rounded-r-3xl rounded-l-3xl'; // RED (circle)
+
+  //     case 'marked':
+  //       return 'bg-[#ef6c00] text-white rounded-t-xl rounded-b-md'; // ORANGE (top curved)
+
+  //     case 'answered-marked':
+  //       return `bg-[#1565c0] text-white rounded-md relative
+  //             after:content-[''] after:absolute after:bottom-0 after:right-0 
+  //             after:w-3 after:h-3 after:bg-black after:rounded-tl-md`; // BLUE + corner mark
+
+  //     case 'not-visited':
+  //       return 'bg-[#e0e0e0] text-gray-600 rounded-md border border-gray-300'; // GRAY
+
+  //     default:
+  //       return 'bg-gray-300 text-gray-600 rounded-md';
+  //   }
+  // };
 
   const getSectionStats = (sectionName: string) => {
     const sectionQuestions = MOCK_QUESTIONS.filter(q => q.section === sectionName);
@@ -177,34 +214,41 @@ export default function ExamPage() {
       {/* Header */}
       <header className="bg-[#d0e3f7] border-b border-gray-300 px-4 md:px-6 py-3 grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-0 items-center">
         {/* LEFT SECTION */}
-        <div className="flex items-center gap-4 pr-6 border-r border-dotted border-gray-500">
+        <div className="flex items-center gap-4 pr-6 border-r h-18 border-dotted border-gray-500">
 
           {/* Logo */}
-          <div className="bg-[#8B1E1E] text-white px-4 py-[6px] rounded-sm flex flex-col leading-tight">
-            <span className="text-lg font-bold tracking-wide">AMRITA</span>
+          <div className=" text-white px-2 py-1 rounded-sm flex flex-col leading-tight">
+            {/* <span className="text-lg font-bold tracking-wide text-center">AMRITA</span>
             <span className="text-[9px] uppercase tracking-wide">
               SCHOOL OF ENGINEERING
-            </span>
+            </span> */}
+            <Image
+              src="/GSR_Logo.jpeg"
+              alt="Logo"
+              className='w-70 h-23 -mt-2'
+              width={120}
+              height={40}
+            />
           </div>
 
           {/* Divider */}
-          <div className="h-14 border-l border-dotted border-gray-500"></div>
+          <div className="h-18 border-l border-dotted border-gray-500"></div>
 
           {/* Test Info */}
-          <div className="flex flex-col justify-center">
-            <p className="text-xs text-gray-600 font-bold uppercase">Test</p>
-            <p className="text-sm font-bold text-gray-800">AEEE 2026</p>
+          <div className="flex flex-col  justify-center items-center ml-8">
+            <p className="text-xl text-gray-700 font-bold uppercase">Test</p>
+            <p className="text-sm font-bold text-gray-500">AEEE 2026</p>
           </div>
 
         </div>
 
 
         {/* CENTER SECTION */}
-        <div className="flex flex-col items-center justify-center px-6 border-r h-14 border-dotted border-gray-500">
-          <p className="text-sm text-gray-500 font-semibold uppercase">
+        <div className="flex flex-col items-center justify-center px-6 border-r h-18 border-dotted border-gray-500">
+          <p className="text-xl text-gray-700 font-bold capitalize">
             Current Section:
           </p>
-          <p className="text-sm font-bold text-blue-700 capitalize">
+          <p className="text-sm font-bold text-gray-500 capitalize">
             {currentSection.name}
           </p>
         </div>
@@ -213,6 +257,13 @@ export default function ExamPage() {
         {/* RIGHT SECTION */}
         <div className="flex justify-end items-center gap-4 pl-6">
 
+          <Image
+              src="/profile_avatar.png"
+              alt="Logo"
+              className='w-25 h-20 bg-transparent -mt-2'
+              width={120}
+              height={40}
+            />
           {/* User Info */}
           <div className="text-right leading-tight">
             <p className="text-sm font-semibold text-gray-800">
@@ -224,9 +275,9 @@ export default function ExamPage() {
           </div>
 
           {/* Avatar */}
-          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center border border-gray-300">
+          {/* <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center border border-gray-300">
             <User size={20} className="text-gray-500" />
-          </div>
+          </div> */}
 
         </div>
 
@@ -235,12 +286,12 @@ export default function ExamPage() {
 
         {/* Timer */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-700">
+          <span className="text-sm font-semibold px-6 text-gray-700">
             Remaining Time:
           </span>
 
           <div className="bg-white px-3 py-[2px] rounded border border-gray-300 shadow-sm">
-            <span className="font-mono font-bold text-gray-800 text-sm">
+            <span className="font-mono font-bold text-gray-800 text-sm px-6">
               {formatTime(state.timeLeft)}
             </span>
           </div>
@@ -249,21 +300,49 @@ export default function ExamPage() {
         {/* Resources */}
         <div className="flex items-center gap-1 bg-white px-3 py-1 rounded border border-gray-300 cursor-pointer hover:bg-gray-100">
           <Settings size={14} />
-          <span className="text-xs font-bold">Resources</span>
+          <span className="text-xs font-bold px-6">Resources</span>
           <ChevronDown size={14} />
         </div>
 
         {/* Font Controls */}
-        <div className="flex items-center gap-2 ml-4">
-          <span className="text-blue-600 font-bold text-lg cursor-pointer">A</span>
-          <span className="border px-1 text-sm cursor-pointer">A</span>
-          <span className="text-gray-500 cursor-pointer">A</span>
+        <div className="flex items-center gap-3 ml-4 px-6">
+
+          {/* Large A */}
+          <span
+            onClick={() => setFontSize('lg')}
+            className={`cursor-pointer font-bold text-xl ${fontSize === 'lg' ? 'border border-blue-600 text-blue-600 p-1 bg-blue-50 italic' : 'text-blue-600 italic'
+              }`}
+          >
+            A
+          </span>
+
+          {/* Medium A (selected box) */}
+          <span
+            onClick={() => setFontSize('md')}
+            className={`cursor-pointer font-bold text-lg px-1 ${fontSize === 'md'
+              ? 'border border-blue-600 text-blue-600 p-1 bg-blue-50 italic'
+              : ' text-blue-600 italic'
+              }`}
+          >
+            A
+          </span>
+
+
+          {/* Small A */}
+          <span
+            onClick={() => setFontSize('sm')}
+            className={`cursor-pointer font-bold text-sm ${fontSize === 'sm' ? 'border border-blue-600 text-blue-600 p-1 bg-blue-50 italic' : 'text-blue-600 italic'
+              }`}
+          >
+            A
+          </span>
+
         </div>
 
       </div>
 
       {/* Section Tabs */}
-      <nav className="bg-white border-b border-slate-300 px-6 flex items-center gap-1 z-40 relative">
+      <nav className="bg-white border-b-3 border-[#2490fc] px-6 flex items-center gap-3 z-40 relative">
         {SECTIONS.map((section) => (
           <div
             key={section.name}
@@ -273,9 +352,9 @@ export default function ExamPage() {
           >
             <button
               onClick={() => handleNavigate(section.startId)}
-              className={`px-6 py-3 text-sm font-bold transition-all border-t-4 border-x border-slate-300 rounded-t-lg -mb-px ${currentSection.name === section.name
-                ? 'border-t-[#2490fc] bg-[#2490fc] text-white'
-                : 'border-t-transparent bg-slate-100 text-slate-600 hover:bg-slate-200'
+              className={`px-8 py-2 text-sm font-bold transition-all border-3 border-b-transparent gap-6  rounded-t-lg -mb-px ${currentSection.name === section.name
+                ? 'border-[#2490fc] bg-[#2490fc] text-white'
+                : 'border-[#2490fc]  text-slate-600 hover:bg-slate-100'
                 }`}
             >
               {section.name} ({section.questionCount})
@@ -285,10 +364,11 @@ export default function ExamPage() {
             <AnimatePresence>
               {showSectionSummary?.name === section.name && (
                 <motion.div
+                  onMouseLeave={() => setShowSectionSummary(null)}
                   initial={{ opacity: 0, y: 10, x: '-50%' }}
                   animate={{ opacity: 1, y: 0, x: '-50%' }}
                   exit={{ opacity: 0, y: 10, x: '-50%' }}
-                  className="absolute top-full left-[90%]  mt-4 w-56 bg-white rounded-2xl shadow-2xl border-3 border-[#2490fc] z-50 p-5 flex flex-col items-center"
+                  className="absolute top-full left-[90%] mt-4 w-65 bg-white rounded-2xl shadow-2xl border-3 border-[#2490fc] z-50 p-5 flex flex-col items-center"
                 >
                   <h3 className="text-sm font-bold text-slate-700 mb-4">{section.name}</h3>
                   <div className="w-full space-y-3">
@@ -322,18 +402,72 @@ export default function ExamPage() {
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-5 gap-2 max-h-[400px] overflow-y-auto p-1 custom-scrollbar">
+                <div className="grid grid-cols-5 gap-1 max-h-[400px] overflow-y-auto p-1 custom-scrollbar">
                   {MOCK_QUESTIONS.filter(q => q.section === currentSection.name).map((q) => (
-                    <button
+                    <div
                       key={q.id}
-                      onClick={() => handleNavigate(q.id)}
-                      className={`w-10 h-10 rounded-md text-xs font-bold border transition-all flex items-center justify-center ${state.currentQuestionId === q.id
-                        ? 'ring-2 ring-blue-600 ring-offset-2 scale-105'
-                        : ''
-                        } ${getStatusColor(state.statuses[q.id])}`}
+                      className="relative"
+                      onMouseEnter={() => setHoveredQ(q.id)}
+                      onMouseLeave={() => setHoveredQ(null)}
                     >
-                      {q.number}
-                    </button>
+                      {/* <button
+                        key={q.id}
+                        onClick={() => handleNavigate(q.id)}
+                        className={`flex items-center justify-center font-bold transition-all duration-150 cursor-pointer
+
+    ${state.currentQuestionId === q.id
+                            ? 'w-12 h-10 scale-110 ring-2y  shadow-[inset_5px_5px_20px_rgba(0,0,0,0.9)]'
+                            : 'w-12 h-10 '
+                          }
+
+     hover:inset-shadow-neutral-500
+
+    ${STATUS_STYLES[state.statuses[q.id]]}
+  `}
+                      >
+                        {q.number}
+                      </button> */}
+                      <button
+                        key={q.id}
+                        onClick={() => handleNavigate(q.id)}
+                        className={`w-12 h-8 flex items-center justify-center font-bold
+                            transition-all duration-150 cursor-pointer
+
+                            ${STATUS_STYLES[state.statuses[q.id]]}
+
+                            ${(state.statuses[q.id] === 'not-answered' ||
+                            state.statuses[q.id] === 'answered-marked') &&
+                            state.currentQuestionId === q.id
+                            ? 'w-14 h-10 rounded-tr-4xl rounded-bl-4xl scale-110 ring-2 shadow-[inset_5px_5px_20px_rgba(0,0,0,0.9)] z-10'
+                            : ''
+                          }
+
+
+  ${state.currentQuestionId === q.id
+                            ? 'scale-110 ring-2 shadow-[inset_5px_5px_20px_rgba(0,0,0,0.9)] z-10'
+                            : ''
+                          }
+
+  hover:scale-105 hover:shadow-md
+`}
+                      >
+                        {q.number}
+                      </button>
+
+                      {/* Tooltip */}
+                      {hoveredQ === q.id && (
+                        <div className="absolute -bottom-16  left-10 -translate-x-1/2 
+      bg-gray-800 text-white w-12 h-12 flex items-center justify-center cursor-pointer text-md px-2 py-1 rounded 
+      whitespace-nowrap z-50 pointer-events-none">
+
+                          {q.number}
+
+                          {/* Arrow */}
+                          {/* <div className="absolute left-1/2 -translate-x-1/2 top-full 
+        w-2 h-2 bg-black rotate-45"></div> */}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -341,11 +475,11 @@ export default function ExamPage() {
               <div className="p-4 flex-1 bg-white custom-scrollbar">
                 <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Legends & Filter</h3>
                 <div className="space-y-3">
-                  <LegendItem color="bg-[#E0E0E0]" label="Not Visited" count={totalStats['not-visited']} />
-                  <LegendItem color="bg-red-700" label="Not Answered" count={totalStats['not-answered']} />
-                  <LegendItem color="bg-[#4CAF50]" label="Answered" count={totalStats['answered']} />
-                  <LegendItem color="bg-[#FF9800]" label="Marked" count={totalStats['marked']} />
-                  <LegendItem color="bg-[#00BCD4] relative after:content-[''] after:absolute after:bottom-0 after:right-0 after:w-2 after:h-2 after:bg-black after:rounded-sm" label="Answered & Marked" count={totalStats['answered-marked']} />
+                  <LegendItem status="not-visited" label="Not Visited" count={totalStats['not-visited']} />
+                  <LegendItem status="not-answered" label="Not Answered" count={totalStats['not-answered']} />
+                  <LegendItem status="answered" label="Answered" count={totalStats['answered']} />
+                  <LegendItem status="marked" label="Marked" count={totalStats['marked']} />
+                  <LegendItem status="answered-marked" label="Answered & Marked" count={totalStats['answered-marked']} />
                 </div>
               </div>
             </motion.aside>
@@ -393,7 +527,15 @@ export default function ExamPage() {
                 <span className="text-lg font-bold text-slate-800">Q{currentQuestion.number}.</span>
               </div>
 
-              <h2 className="text-xl font-medium leading-relaxed text-slate-800 mb-0">
+              <h2
+                className={`font-medium leading-relaxed text-slate-800 mb-0
+                ${fontSize === 'sm'
+                    ? 'text-lg'
+                    : fontSize === 'lg'
+                      ? 'text-2xl'
+                      : 'text-xl'
+                  }`}
+              >
                 {currentQuestion.text}
               </h2>
 
@@ -427,8 +569,12 @@ export default function ExamPage() {
 
                     {/* Option Text */}
                     <span
-                      className={`font-normal text-xl
-       `}
+                      className={`font-normal ${fontSize === 'sm'
+                        ? 'text-base'
+                        : fontSize === 'lg'
+                          ? 'text-2xl'
+                          : 'text-xl'
+                        }`}
                     >
                       {option.text}
                     </span>
@@ -452,7 +598,8 @@ export default function ExamPage() {
               onClick={handleMarkForReview}
               className="flex-1 py-2 rounded border border-gray-300 bg-gray-100 text-gray-700 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-gray-200 transition"
             >
-              <Bookmark size={16} className="text-gray-600" />
+              <FaBookmark
+                size={17} className="text-gray-600" />
               Mark
             </button>
 
@@ -460,7 +607,7 @@ export default function ExamPage() {
               onClick={handleClearResponse}
               className="flex-1 py-2 rounded border border-gray-300 bg-gray-100 text-gray-700 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-gray-200 transition"
             >
-              <X size={16} className="text-gray-600" />
+              <X size={17} className="text-gray-600 font-bold" />
               Clear
             </button>
 
@@ -486,10 +633,10 @@ export default function ExamPage() {
           className="fixed right-0 top-1/2 -translate-y-1/2 z-50 group"
         >
           <motion.div
-            whileHover={{ x: -3 }}
-            className="bg-[#1e88e5] text-white px-2 py-4 rounded-l-full shadow-lg flex items-center justify-center"
+            whileHover={{ x: -3 }}  
+            className="bg-blue-5 *:0 text-white px-2 py-4 border border-b-2 border-gray-400 rounded-bl-full shadow-lg flex items-center justify-center"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={24} className='text-blue-500 font-bold'/>
           </motion.div>
           <div className="absolute right-10 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
             View Summary
@@ -501,6 +648,8 @@ export default function ExamPage() {
       <AnimatePresence>
         {showFinalSummary && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+
+            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -508,49 +657,87 @@ export default function ExamPage() {
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setShowFinalSummary(false)}
             />
+
+            {/* Modal */}
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0, y: 40 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 40 }}
+              transition={{ duration: 0.3 }}
+              className="relative w-full max-w-[60%] h-[88vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden"
             >
-              <div className="bg-[#E9ECEF] p-4 border-b border-slate-300 flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-slate-700">Summary Report</h2>
-                <button onClick={() => setShowFinalSummary(false)} className="text-slate-500 hover:text-slate-800">
-                  <X size={24} />
-                </button>
+
+              {/* Header */}
+              <div className="px-6 py-5 -mb-5  bg-white flex items-center justify-between">
+                <h2 className="text-2xl font-semibold text-gray-800">
+                  Summary Report
+                </h2>
+                {/* <button
+                  onClick={() => setShowFinalSummary(false)}
+                  className="text-gray-500 hover:text-gray-800"
+                >
+                  <X size={22} />
+                </button> */}
               </div>
 
-              <div className="p-8 space-y-4">
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto px-6 py-2 space-y-2 ">
+
                 {SECTIONS.map((section) => {
                   const stats = getSectionStats(section.name);
-                  const attempted = stats.answered + stats['answered-marked'];
+                  const attempted =
+                    stats.answered + stats["answered-marked"];
+
                   return (
-                    <div key={section.name} className="flex items-center justify-between p-4 bg-[#F1F3F5] rounded-lg border border-slate-200">
-                      <div className="flex items-center gap-4">
-                        <span className="w-40 px-4 py-1 bg-[#4A7C44] text-white text-sm font-bold rounded-full text-center">
+                    <div
+                      key={section.name}
+                      className="flex items-center justify-between px-4 py-3 rounded-md bg-[#c6ddee]  border border-[#c5d9e8]  
+                      shadow-[inset_7px_0_18px_rgba(0,0,0,0.2)]"
+                    >
+                      {/* Left */}
+                      <div className="flex items-center gap-4 flex-wrap">
+
+                        {/* Green Tag */}
+                        <span className="px-6 py-1 bg-[#2e7d32]  text-white text-sm font-bold rounded-full capitalize shadow-[offset_3px_0_6px_rgba(0,0,0,0.7)]">
                           {section.name}
                         </span>
-                        <p className="text-slate-700 font-medium">
-                          You have attempted <span className="px-2 py-0.5 bg-[#4A7C44] text-white rounded mx-1">{attempted}</span> of <span className="px-2 py-0.5 bg-[#4A7C44] text-white rounded mx-1">{section.questionCount}</span> questions
+
+                        {/* Text */}
+
+                        <p className="text-gray-700 text-sm font-bold flex items-center">
+                          You have attempted{" "}
+                          <span className="px-2 py-1 bg-[#2e7d32] text-white rounded font-bold mx-2">
+                            {attempted}
+                          </span>{" "}
+                          of{" "}
+                          <span className="px-2 py-1 bg-[#2e7d32] text-white rounded font-bold mx-2">
+                            {section.questionCount}
+                          </span>{" "}
+                          questions
                         </p>
                       </div>
-                      <button className="flex items-center gap-2 text-blue-600 font-bold text-sm hover:underline">
-                        Expand <ChevronDown size={16} />
+
+                      {/* Expand */}
+                      <button className="flex items-center gap-1 text-gray-700 text-sm font-semibold hover:text-black">
+                        Expand
+                        <BiSolidDownArrowAlt size={16} />
                       </button>
                     </div>
                   );
                 })}
               </div>
 
-              <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-4">
+              {/* Footer */}
+              <div className="px-6 py-4 bg-gray-50 border-t flex justify-end">
                 <button
                   onClick={() => setShowFinalSummary(false)}
-                  className="px-8 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition-colors"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition
+                  shadow-[inset_0_0_19px_rgba(0,0,0,0.7)]"
                 >
                   Close
                 </button>
               </div>
+
             </motion.div>
           </div>
         )}
@@ -559,40 +746,32 @@ export default function ExamPage() {
   );
 }
 
-function LegendItem({ color, label, count }: { color: string, label: string, count: number }) {
+function LegendItem({ status, label, count }: { status: QuestionStatus, label: string, count: number }) {
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded border flex items-center justify-center text-xs font-bold ${color}`}>
-          {count}
-        </div>
-        <span className="text-xs font-bold text-slate-600">{label}</span>
+    <div className="flex items-center gap-3">
+      <div
+        className={`w-12 h-8 flex items-center justify-center text-xs font-bold
+        ${STATUS_STYLES[status]}`}
+      >
+        {count}
       </div>
+      <span className="text-xs font-bold text-slate-600">{label}</span>
     </div>
   );
 }
 
 function SummaryRow({ status, label, count }: { status: QuestionStatus, label: string, count: number }) {
-  const getStatusStyle = (status: QuestionStatus) => {
-    switch (status) {
-      case 'answered': return 'bg-[#4CAF50] text-white rounded-t-lg rounded-b-sm';
-      case 'not-answered': return 'bg-[#F44336] text-white rounded-full';
-      case 'marked': return 'bg-[#FF9800] text-white rounded-b-xl rounded-t-sm';
-      case 'answered-marked': return 'bg-[#00BCD4] text-white rounded-full relative';
-      case 'not-visited': return 'bg-[#E0E0E0] text-slate-700 rounded-md border border-slate-300';
-      default: return 'bg-[#E0E0E0] text-slate-700 rounded-md';
-    }
-  };
-
   return (
     <div className="flex items-center gap-4">
-      <div className={`w-12 h-9 flex items-center justify-center text-sm font-bold shadow-md ${getStatusStyle(status)}`}>
+      <div
+        className={`w-12 h-8 flex items-center justify-center text-sm font-bold shadow-md
+        ${STATUS_STYLES[status]}`}
+      >
         {count}
-        {status === 'answered-marked' && (
-          <div className="absolute top-0 right-1 w-2 h-3 bg-black rounded-b-sm" />
-        )}
       </div>
-      <span className="text-[13px] font-bold text-slate-600 whitespace-nowrap">{label}</span>
+      <span className="text-[13px] font-bold text-slate-600 whitespace-nowrap">
+        {label}
+      </span>
     </div>
   );
-}  
+}
