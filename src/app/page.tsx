@@ -223,7 +223,7 @@ export default function ExamPage() {
               SCHOOL OF ENGINEERING
             </span> */}
             <Image
-              src="/GSR_logo.jpeg"
+              src="/GSR_Logo.jpeg"
               alt="Logo"
               className='w-70 h-23 -mt-2'
               width={120}
