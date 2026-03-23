@@ -3,7 +3,7 @@ import { Section, Question } from './types';
 export const SECTIONS: Section[] = [
   { name: 'Physics', questionCount: 25, startId: 1 },
   { name: 'Chemistry', questionCount: 20, startId: 26 },
-  { name: 'mathematics', questionCount: 40, startId: 46 },
+  { name: 'Mathematics', questionCount: 40, startId: 46 },
   { name: 'English', questionCount: 5, startId: 86 },
   { name: 'Quantitative Aptitude', questionCount: 10, startId: 91 },
 ];
@@ -13,7 +13,7 @@ export const MOCK_QUESTIONS: Question[] = Array.from({ length: 100 }, (_, i) => 
   let section = '';
   if (id <= 25) section = 'Physics';
   else if (id <= 45) section = 'Chemistry';
-  else if (id <= 85) section = 'mathematics';
+  else if (id <= 85) section = 'Mathematics';
   else if (id <= 90) section = 'English';
   else section = 'Quantitative Aptitude';
 

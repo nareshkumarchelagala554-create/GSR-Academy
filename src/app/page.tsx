@@ -64,6 +64,9 @@ export default function ExamPage() {
   const [showFinalSummary, setShowFinalSummary] = useState(false);
   const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg'>('md');
   const [hoveredQ, setHoveredQ] = useState<number | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<'top' | 'bottom'>('bottom');
+  const [tooltipCoords, setTooltipCoords] = useState({ x: 0, y: 0 });
+  const paletteRef = React.useRef<HTMLDivElement | null>(null);
 
   // Timer logic
   useEffect(() => {
@@ -212,73 +215,54 @@ export default function ExamPage() {
       </div>
 
       {/* Header */}
-      <header className="bg-[#d0e3f7] border-b border-gray-300 px-4 md:px-6 py-3 grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-0 items-center">
-        {/* LEFT SECTION */}
-        <div className="flex items-center gap-4 pr-6 border-r h-18 border-dotted border-gray-500">
 
-          {/* Logo */}
-          <div className=" text-white px-2 py-1 rounded-sm flex flex-col leading-tight">
-            {/* <span className="text-lg font-bold tracking-wide text-center">AMRITA</span>
-            <span className="text-[9px] uppercase tracking-wide">
-              SCHOOL OF ENGINEERING
-            </span> */}
-            <Image
-              src="/GSR_Logo.jpeg"
-              alt="Logo"
-              className='w-70 h-23 -mt-2'
-              width={120}
-              height={40}
-            />
-          </div>
+      <header className="bg-[#d0e3f7] border-b border-gray-300 px-4 py-2 grid grid-cols-4 items-center">
 
-          {/* Divider */}
-          <div className="h-18 border-l border-dotted border-gray-500"></div>
-
-          {/* Test Info */}
-          <div className="flex flex-col  justify-center items-center ml-8">
-            <p className="text-xl text-gray-700 font-bold uppercase">Test</p>
-            <p className="text-sm font-bold text-gray-500">AEEE 2026</p>
-          </div>
-
+        {/* 1️⃣ LOGO */}
+        <div className="flex items-center justify-center border-r border-dotted border-gray-500 h-[70px]">
+          <Image
+            src="/Av_gsrlogo.svg"
+            alt="Logo"
+            width={280}
+            height={40}
+            className="object-contain"
+          />
         </div>
 
+        {/* 2️⃣ TEST INFO */}
+        <div className="flex flex-col items-center justify-center border-r border-dotted border-gray-500 h-[70px]">
+          <p className="text-lg font-semibold text-gray-700">Test</p>
+          <p className="text-sm font-semibold text-gray-600">AEEE 2026</p>
+        </div>
 
-        {/* CENTER SECTION */}
-        <div className="flex flex-col items-center justify-center px-6 border-r h-18 border-dotted border-gray-500">
-          <p className="text-xl text-gray-700 font-bold capitalize">
-            Current Section:
+        {/* 3️⃣ CURRENT SECTION */}
+        <div className="flex flex-col items-center justify-center border-r border-dotted border-gray-500 h-[70px]">
+          <p className="text-lg font-semibold text-gray-700">
+            Current Section
           </p>
-          <p className="text-sm font-bold text-gray-500 capitalize">
+          <p className="text-sm font-semibold text-gray-600 capitalize">
             {currentSection.name}
           </p>
         </div>
 
-
-        {/* RIGHT SECTION */}
-        <div className="flex justify-end items-center gap-4 pl-6">
-
+        {/* 4️⃣ USER INFO */}
+        <div className="flex items-center justify-center gap-3 h-[70px]">
           <Image
-              src="/profile_avatar.png"
-              alt="Logo"
-              className='w-25 h-20 bg-transparent -mt-2'
-              width={120}
-              height={40}
-            />
-          {/* User Info */}
-          <div className="text-right leading-tight">
+            src="/profile_avatar.png"
+            alt="User"
+            width={100}
+            height={40}
+            className="rounded-full"
+          />
+
+          <div className="text-left">
             <p className="text-sm font-semibold text-gray-800">
               Krishna Vinay Charan
             </p>
-            <p className="text-xs text-gray-500 font-medium">
+            <p className="text-xs text-gray-500">
               1014003302
             </p>
           </div>
-
-          {/* Avatar */}
-          {/* <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center border border-gray-300">
-            <User size={20} className="text-gray-500" />
-          </div> */}
-
         </div>
 
       </header>
@@ -402,12 +386,24 @@ export default function ExamPage() {
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-5 gap-1 max-h-[400px] overflow-y-auto p-1 custom-scrollbar">
+                <div
+                  ref={paletteRef}
+                  className="grid grid-cols-5 gap-1 max-h-[400px] overflow-y-auto p-1 custom-scrollbar relative"
+                >
                   {MOCK_QUESTIONS.filter(q => q.section === currentSection.name).map((q) => (
                     <div
                       key={q.id}
                       className="relative"
-                      onMouseEnter={() => setHoveredQ(q.id)}
+                      onMouseEnter={(e) => {
+                        setHoveredQ(q.id);
+
+                        const rect = e.currentTarget.getBoundingClientRect();
+
+                        setTooltipCoords({
+                          x: rect.right + 10, // 👉 RIGHT SIDE
+                          y: rect.top + rect.height / 2,
+                        });
+                      }}
                       onMouseLeave={() => setHoveredQ(null)}
                     >
                       {/* <button
@@ -438,39 +434,41 @@ export default function ExamPage() {
                             ${(state.statuses[q.id] === 'not-answered' ||
                             state.statuses[q.id] === 'answered-marked') &&
                             state.currentQuestionId === q.id
-                            ? 'w-14 h-10 rounded-tr-4xl rounded-bl-4xl scale-110 ring-2 shadow-[inset_5px_5px_20px_rgba(0,0,0,0.9)] z-10'
+                            ? 'w-12 h-8 rounded-tr-4xl rounded-bl-4xl scale-110 ring-2 shadow-[inset_5px_5px_20px_rgba(0,0,0,0.9)] z-10'
                             : ''
                           }
 
 
-  ${state.currentQuestionId === q.id
+                              ${state.currentQuestionId === q.id
                             ? 'scale-110 ring-2 shadow-[inset_5px_5px_20px_rgba(0,0,0,0.9)] z-10'
                             : ''
                           }
 
-  hover:scale-105 hover:shadow-md
-`}
+                                hover:scale-105 hover:shadow-md
+                              `}
                       >
                         {q.number}
                       </button>
 
-                      {/* Tooltip */}
-                      {hoveredQ === q.id && (
-                        <div className="absolute -bottom-16  left-10 -translate-x-1/2 
-      bg-gray-800 text-white w-12 h-12 flex items-center justify-center cursor-pointer text-md px-2 py-1 rounded 
-      whitespace-nowrap z-50 pointer-events-none">
 
-                          {q.number}
-
-                          {/* Arrow */}
-                          {/* <div className="absolute left-1/2 -translate-x-1/2 top-full 
-        w-2 h-2 bg-black rotate-45"></div> */}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
               </div>
+              {hoveredQ && (
+                <div
+                  className="fixed z-[9999] pointer-events-none"
+                  style={{
+                    left: tooltipCoords.x,
+                    top: tooltipCoords.y,
+                    transform: "translateY(-50%)",
+                  }}
+                >
+                  <div className="w-13 h-13  text-center flex justify-center items-center bg-gray-800 text-white px-4 py-2 text-sm rounded shadow-lg whitespace-nowrap">
+                    {hoveredQ}
+                  </div>
+                </div>
+              )}
 
               <div className="p-4 flex-1 bg-white custom-scrollbar">
                 <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Legends & Filter</h3>
@@ -589,7 +587,7 @@ export default function ExamPage() {
             <button
               onClick={() => handleNavigate(state.currentQuestionId - 1)}
               disabled={state.currentQuestionId === 1}
-              className="flex-1 py-2 rounded bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors shadow-md disabled:opacity-50"
+              className="flex-1 py-2 rounded bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-700 transition-colors shadow-md disabled:opacity-50"
             >
               Previous
             </button>
@@ -633,10 +631,10 @@ export default function ExamPage() {
           className="fixed right-0 top-1/2 -translate-y-1/2 z-50 group"
         >
           <motion.div
-            whileHover={{ x: -3 }}  
+            whileHover={{ x: -3 }}
             className="bg-blue-5 *:0 text-white px-2 py-4 border border-b-2 border-gray-400 rounded-bl-full shadow-lg flex items-center justify-center"
           >
-            <ChevronLeft size={24} className='text-blue-500 font-bold'/>
+            <ChevronLeft size={24} className='text-blue-500 font-bold' />
           </motion.div>
           <div className="absolute right-10 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
             View Summary
