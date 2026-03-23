@@ -216,7 +216,8 @@ export default function ExamPage() {
 
       {/* Header */}
 
-      <header className="bg-[#d0e3f7] border-b border-gray-300 px-4 py-2 grid grid-cols-4 items-center">
+      <header className="bg-[#d0e3f7] border-b border-gray-300 px-2 py-2 
+grid grid-cols-2 md:grid-cols-4 gap-2 items-center">
 
         {/* 1️⃣ LOGO */}
         <div className="flex items-center justify-center border-r border-dotted border-gray-500 h-[70px]">
@@ -266,7 +267,10 @@ export default function ExamPage() {
         </div>
 
       </header>
-      <div className="flex items-end justify-end gap-8 mr-6 mb-6 py-2">
+
+
+      <div className="flex flex-col md:flex-row items-start md:items-end 
+justify-between gap-3 md:gap-8 px-4 mb-4 py-2">
 
         {/* Timer */}
         <div className="flex items-center gap-2">
@@ -326,7 +330,8 @@ export default function ExamPage() {
       </div>
 
       {/* Section Tabs */}
-      <nav className="bg-white border-b-3 border-[#2490fc] px-6 flex items-center gap-3 z-40 relative">
+      <nav className="bg-white border-b-3 border-[#2490fc] px-2 md:px-6 
+flex items-center gap-2 md:gap-3 overflow-x-auto whitespace-nowrap">
         {SECTIONS.map((section) => (
           <div
             key={section.name}
@@ -377,7 +382,7 @@ export default function ExamPage() {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 320, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              className="bg-white border-r border-slate-300  overflow-y-auto flex flex-col z-20"
+              className="bg-white border-r border-slate-300  overflow-y-auto flex flex-col z-20 w-[260px] md:w-[320px]"
             >
               <div className="p-4 border-b border-slate-200 bg-slate-50 ">
                 <div className="flex items-center justify-between mb-4">
@@ -519,7 +524,7 @@ export default function ExamPage() {
 
         {/* Question Area */}
         <section className="flex-1 flex flex-col bg-white overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-12">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12">
             <div className="max-w-4xl mx-auto">
               <div className="mb-6">
                 <span className="text-lg font-bold text-slate-800">Q{currentQuestion.number}.</span>
@@ -541,7 +546,7 @@ export default function ExamPage() {
                 {currentQuestion.options.map((option) => (
                   <label
                     key={option.id}
-                    className={`w-full flex items-center gap-4 p-4 rounded cursor-pointer transition-all
+                    className={`w-full flex items-start md:items-center gap-3 md:gap-4 p-3 md:p-4 rounded cursor-pointer transition-all
       ${state.answers[state.currentQuestionId] === option.id
                         ? "border-gray-600 bg-gray-200"
                         : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
@@ -583,7 +588,8 @@ export default function ExamPage() {
           </div>
 
           {/* Footer */}
-          <footer className="bg-[#F8F9FA] border-t border-slate-300 p-4 flex items-center gap-4 z-10">
+          <footer className="bg-[#F8F9FA] border-t border-slate-300 p-3 md:p-4 
+flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4">
             <button
               onClick={() => handleNavigate(state.currentQuestionId - 1)}
               disabled={state.currentQuestionId === 1}
@@ -662,7 +668,7 @@ export default function ExamPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 40 }}
               transition={{ duration: 0.3 }}
-              className="relative w-full max-w-[60%] h-[88vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden"
+              className="relative w-full md:max-w-[60%] h-[95vh] md:h-[88vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden"
             >
 
               {/* Header */}
